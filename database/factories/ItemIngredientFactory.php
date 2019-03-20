@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Str;
 use Faker\Generator as Faker;
-use App\Models\User;
+use App\Models\Store;
+use App\Models\ItemIngredient;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,12 +16,17 @@ use App\Models\User;
 |
 */
 
-$factory->define(User::class, function (Faker $faker) {
+$factory->define(ItemIngredient::class, function (Faker $faker) {
+    $minItemIngredientPrice = 1.0;
+    $maxItemIngredientPrice = 1000.0;
     return [
-        'full_name' => $faker->name,
-        'email' => $faker->unique()->safeEmail,
-        'email_verified_at' => now(),
-        'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
-        'remember_token' => Str::random(10),
+        'store_id' => function () {
+            return Store::inRandomOrder()->first()->id;
+        },
+        'price' => $faker->randomFloat(
+            $nbMaxDecimals = 2, 
+            $min = $minItemIngredientPrice, 
+            $max = $maxItemIngredientPrice
+            )
     ];
 });
