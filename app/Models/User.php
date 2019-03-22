@@ -36,4 +36,17 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Генерация уникального токена
+     *
+     * @return void
+     */
+    public function rollApiKey()
+    {
+        do {
+            $this->api_token = str_random(30);
+        } while ($this->where('api_token', $this->api_token)->exists());
+        $this->save();
+    }
 }

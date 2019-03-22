@@ -1,0 +1,135 @@
+swagger: "2.0"
+info:
+  description: "Users API"
+  version: "1.0.0"
+  title: "Users API"
+host: "localhost"
+basePath: "/api/v1"
+tags:
+- name: "User authorization"
+  description: "Operations about athorization user"
+schemes:
+- "https"
+- "http"
+paths:
+  /login:
+    get:
+      tags:
+      - "User authorization"
+      summary: "Login user by email and password"
+      description: ""
+      operationId: "login"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "email"
+        type: "string"
+        description: "Email of the user"
+        required: true
+      - in: "query"
+        name: "password"
+        type: "string"
+        description: "Password of the user"
+        required: true
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "d12hjHduh12dh21"
+        401:
+          description: "Неверный логин / пароль"
+        404:
+          description: "Пользователь не существует"
+  /register:
+    get:
+      tags:
+        - "User authorization"
+      summary: "Register user by email and password"
+      description: ""
+      operationId: "register"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "email"
+        type: "string"
+        description: "Email of the user"
+        required: true
+      - in: "query"
+        name: "password"
+        type: "string"
+        description: "Password of the user"
+        required: true
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "d12hjHduh12dh21"
+        400:
+          description: "Пользователь c таким email уже зарегистрирован!"
+definitions:
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 1
+      name:
+        type: "string"
+        example: "My name"
+      email:
+        type: "string"
+        example: "someemail1@bk.ru"
+      role:
+        type: "string"
+        example: "User"
+      banned:
+        type: "boolean"
+        example: False  
+  ArrayOfUsers:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        name:
+          type: "string"
+        email:
+          type: "string"
+        role:
+          type: "string"
+        banned:
+          type: "boolean"
+    example:
+      - id: 1
+        name: "Ivanov Ivan"
+        email: "someemail1@bk.ru"
+        role: "User"
+        banned: True
+      - id: 2
+        name: "Ivanov Ivan"
+        email: "someemail1@bk.ru"
+        role: "Admin"
+        banned: False
