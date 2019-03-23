@@ -5,6 +5,7 @@ use Faker\Generator as Faker;
 use App\Models\Item;
 use App\Models\CartItem;
 use App\Models\User;
+use App\Models\Store;
 use App\Support\Enums\UserRole;
 
 /*
@@ -29,6 +30,9 @@ $factory->define(CartItem::class, function (Faker $faker) {
         },
         'user_id' =>  function () {
             return User::inRandomOrder()->first()->id;
+        },
+        'store_id' =>  function () {
+            return Store::inRandomOrder()->first()->id;
         },
     ];
 });
