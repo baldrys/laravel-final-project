@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use App\Support\Enums\UserRole;
 
 class CreateUsersTable extends Migration
 {
@@ -23,7 +24,7 @@ class CreateUsersTable extends Migration
             $table->timestamps();
 
             $table->string('api_token', 30)->unique()->nullable()->default(null);
-            $table->enum('role',['Customer', 'StoreUser', 'Admin'])->default('Customer');
+            $table->enum('role', UserRole::getValues())->default('Customer');
         });
     }
 

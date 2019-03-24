@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use App\Support\Enums\OrderStatus;
 
 class CreateOrdersTable extends Migration
 {
@@ -32,7 +33,7 @@ class CreateOrdersTable extends Migration
             ->onUpdate('cascade')
             ->onDelete('cascade');
 
-            $table->enum('status', ['Canceled', 'Placed', 'Approved', 'Shipped', 'Received'])->default('Placed');
+            $table->enum('status', OrderStatus::getValues())->default('Placed');
             $table->float('total_price', 8, 2);
         });
     }
