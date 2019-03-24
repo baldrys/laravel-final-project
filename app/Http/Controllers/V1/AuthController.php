@@ -23,6 +23,7 @@ class AuthController extends Controller
         if (!Hash::check($request->password, $user->password)) {
             abort(401, "Неверный логин / пароль");
         }
+        $user->rollApiKey();
         return response()->json([
             "success" => true,
             "data" => [

@@ -25,7 +25,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token','api_token', 'role',
+        'password', 'remember_token','api_token',
     ];
 
     /**
@@ -36,6 +36,11 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function cartItems()
+    {
+        return $this->belongsToMany('App\Models\Item', 'cart_items', 'user_id', 'item_id');
+    }
 
     /**
      * Генерация уникального токена

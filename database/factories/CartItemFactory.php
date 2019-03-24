@@ -31,8 +31,5 @@ $factory->define(CartItem::class, function (Faker $faker) {
         'user_id' =>  function () {
             return User::inRandomOrder()->first()->id;
         },
-        'store_id' =>  function () {
-            return Store::inRandomOrder()->first()->id;
-        },
     ];
 });

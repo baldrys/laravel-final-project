@@ -15,17 +15,14 @@ class CheckUserRole
      */
     public function handle($request, Closure $next, ...$roles)
     {
-        foreach ($roles as $role) {
-    
-            try {
-                if ($request->user()->can($role)) {
-                  return $next($request);
-            }
-    
-            } catch (ModelNotFoundException $exception) {
-              abort(403);
-            }
+        $me = auth("api")->user();
+        if (!in_array($me->role, $roles)) {
+            return response()->json([
+                "success" => false,
+                "message" => "Нет доступа для групппы " . $me->role
+            ], 403);
         }
-    
+        return $next($request);
+
     }
 }
