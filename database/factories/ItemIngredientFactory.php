@@ -27,6 +27,7 @@ $factory->define(ItemIngredient::class, function (Faker $faker) {
             $nbMaxDecimals = 2, 
             $min = $minItemIngredientPrice, 
             $max = $maxItemIngredientPrice
-            )
+        ),
+        'name' => Str::random(10),    
     ];
 });

@@ -1,4 +1,17 @@
 swagger: "2.0"
+securityDefinitions:
+  CustomerSecurity:
+    type: apiKey
+    in: header
+    name: CUSTOMER-USER-API-KEY
+  StoreUserSecurity:
+    type: apiKey
+    in: header
+    name: STORE-USER-API-KEY  
+  AdminSecurity:
+    type: apiKey
+    in: header
+    name: ADMIN-API-KEY
 info:
   description: "Users API"
   version: "1.0.0"
@@ -8,6 +21,8 @@ basePath: "/api/v1"
 tags:
 - name: "User authorization"
   description: "Operations about athorization user"
+- name: "Cart operations"
+  description: "Operations about cart"  
 schemes:
 - "https"
 - "http"
@@ -86,6 +101,169 @@ paths:
                     example: "d12hjHduh12dh21"
         400:
           description: "Пользователь c таким email уже зарегистрирован!"
+  /cart/items/{item}:
+    post:
+      security:
+      - AdminSecurity: []
+      - CustomerSecurity: []
+      tags:
+        - "Cart operations"
+      summary: "Addition items to user's cart"
+      description: "Recuired roles: customer or admin"
+      operationId: "addItemToCart"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "item"
+        type: "integer"
+        format: "int64"
+        description: "Item Id"
+        required: true
+      - in: "query"
+        name: "amount"
+        type: "integer"
+        description: "Amount of items"
+        required: true
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+        400:
+          description: "Item из другого магазина!"
+        500:
+          description: "В корзине items из разных магазинов!"
+    delete:
+      security:
+      - AdminSecurity: []
+      - CustomerSecurity: []
+      tags:
+        - "Cart operations"
+      summary: "Delition items from user's cart"
+      description: "Recuired roles: customer or admin"
+      operationId: "deleteItemFromCart"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "item"
+        type: "integer"
+        format: "int64"
+        description: "Item Id"
+        required: true
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+        404:
+          description: "Item'а нету в корзине!"
+  /cart/checkout:
+    post:
+      security:
+      - AdminSecurity: []
+      - CustomerSecurity: []
+      tags:
+      - "Cart operations"
+      summary: "Ceckout for user's cart"
+      description: "Recuired roles: customer or admin"
+      operationId: "checkout"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  order:
+                    $ref: "#/definitions/Order"
+        400:
+          description: "Корзина пуста!"
+  /me/info:
+    get:
+      security:
+      - AdminSecurity: []
+      - CustomerSecurity: []
+      tags:
+      - "User's information"
+      summary: "Get user's information"
+      description: "Recuired roles: customer or admin"
+      operationId: "info"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/definitions/User"
+  /me/orders:
+    get:
+      security:
+      - AdminSecurity: []
+      - CustomerSecurity: []
+      tags:
+      - "User's information"
+      summary: "Get user's orders"
+      description: "Recuired roles: customer or admin"
+      operationId: "getOrders"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "page"
+        type: "integer"
+        description: "Page"
+        required: false
+        default: 1
+      - in: "query"
+        name: "status"
+        type: "string"
+        description: "Order's status: [Canceled, Placed (default), Approved, Shipped, Received]"
+        required: true
+      - in: "query"
+        name: "min_total_price"
+        type: "integer"
+        description: ""
+        required: true
+      - in: "query"
+        name: "max_total_amount "
+        type: "integer"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  orders:
+                    $ref: "#/definitions/OrderArray"                  
 definitions:
   User:
     type: "object"
@@ -93,19 +271,51 @@ definitions:
       id:
         type: "integer"
         format: "int64"
-        example: 1
-      name:
-        type: "string"
-        example: "My name"
+        example: 23
       email:
         type: "string"
-        example: "someemail1@bk.ru"
-      role:
+        example: "someemail@gmail.com"
+      created_at:
         type: "string"
-        example: "User"
-      banned:
-        type: "boolean"
-        example: False  
+        example: "2019-03-12 07:15:40"
+  Order:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 12
+      user_id:
+        type: "integer"
+        format: "int64"
+        example: 32
+      store_id:
+        type: "integer"
+        format: "int64"
+        example: 2
+      total_amount:
+        type: "number"
+        example: 120.00
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            item_id:
+              type: "integer"
+              format: "int64"
+            amount:
+              type: "integer"
+              format: "int64"
+          example:
+            - item_id: 3
+              amount: 13
+            - item_id: 2
+              amount: 10
+  OrderArray:
+    type: array
+    items:
+      $ref: "#/definitions/Order"
   ArrayOfUsers:
     type: array
     items:

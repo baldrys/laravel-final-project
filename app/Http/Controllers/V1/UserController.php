@@ -24,13 +24,13 @@ class UserController extends Controller
         return response()->json([
             "success" => true,
             "data" => [
-                "user" => UserTransformer::transformItem($user),
+                "user" => UserTransformer::transformItem($user)
             ],
         ]);
     }
 
     /**
-     * @param Request $request
+     * @param GetOrdersRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getOrders(GetOrdersRequest $request)

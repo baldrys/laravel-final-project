@@ -21,5 +21,6 @@ $factory->define(Item::class, function (Faker $faker) {
         'store_id' => function () {
             return Store::inRandomOrder()->first()->id;
         },
+        'name' => Str::random(10),
     ];
 });
