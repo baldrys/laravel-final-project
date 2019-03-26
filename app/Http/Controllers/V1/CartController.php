@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Transformers\V1\OrderTransformer;
 
 class CartController extends Controller
 {
@@ -96,7 +97,7 @@ class CartController extends Controller
         return response()->json([
             "success" => true,
             "data" => [
-                "order" => $order,
+                "order" => OrderTransformer::transformItem($order),
             ],
         ]);
     }
