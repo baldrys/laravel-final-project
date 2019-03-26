@@ -26,13 +26,13 @@ class GetOrdersRequest extends FormRequest
     public function rules()
     {
         return [
-            'status' => Rule::in([
+            'status' => ['required', Rule::in([
                 OrderStatus::Canceled,
                 OrderStatus::Placed,
                 OrderStatus::Approved,
                 OrderStatus::Shipped,
                 OrderStatus::Received,
-            ]),
+            ])],
             'min_total_price' => 'required|integer|min:1',
             'max_total_price' => 'required|integer|min:1',
         ];

@@ -64,6 +64,7 @@ Route::group(['prefix' => 'v1'], function ()
                 Route::post('{store}/items', 'V1\StoreController@addItemToStore');
                 Route::patch('{store}/items/{item}', 'V1\StoreController@updateStoreItem');
                 Route::delete('{store}/items/{item}', 'V1\StoreController@deleteStoreItem');
+                Route::get('{store}/orders', 'V1\StoreController@getStoreOrders');
             });
 
         });

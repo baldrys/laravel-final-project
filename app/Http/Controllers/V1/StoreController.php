@@ -5,15 +5,19 @@ namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\AddItemToStoreRequest;
 use App\Http\Requests\V1\IngredientsRequest;
+use App\Http\Requests\V1\GetOrdersRequest;
 use App\Http\Transformers\V1\ItemTransformer;
 use App\Http\Transformers\V1\OrderTransformer;
 use App\Models\Item;
 use App\Models\Store;
+use App\Models\Order;
 use App\Support\Enums\OrderStatus;
 use Illuminate\Http\Request;
 
 class StoreController extends Controller
 {
+
+    const ORDERS_PER_PAGE = 2;
 
     /**
      * @param Request $request
@@ -88,5 +92,26 @@ class StoreController extends Controller
         ]);
 
     }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStoreOrders(Store $store, GetOrdersRequest $request)
+    {
+        $orders = Order::where('store_id', $store->id)
+            ->where('status', $request->status)
+            ->where('total_price', '>=', $request->min_total_price)
+            ->where('total_price', '<=', $request->max_total_price)
+            ->paginate(self::ORDERS_PER_PAGE)->except(['data']);
+        return response()->json([
+            "success" => true,
+            "data" => [
+                "orders" => OrderTransformer::transformCollection($orders),
+            ],
+        ]);
+
+    }
+    
 
 }
