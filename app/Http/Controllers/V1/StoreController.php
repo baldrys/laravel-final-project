@@ -51,8 +51,10 @@ class StoreController extends Controller
         $name = $request->name;
         if ($name) {
             $item->name = $name;
-            $item->save();
         }
+
+        $item->store_id = $store->id;
+        $item->save();
 
         $ingredients = $request->ingredients;
         if ($ingredients) {
@@ -73,6 +75,13 @@ class StoreController extends Controller
      */
     public function deleteStoreItem(Store $store, Item $item, Request $request)
     {
+        if($item->store_id != $store->id){
+            return response()->json([
+                "success" => false,
+                "message" => "Item ".$item->id." нету в store ".$store->id,
+            ], 404);
+        }
+        
         $orders = $item->orders()->where('status', '<>', OrderStatus::Canceled)->get();
 
         if ($orders->count() > 0) {
