@@ -14,12 +14,15 @@ use App\Support\Enums\UserRole;
 |
 */
 
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
 Route::group(['prefix' => 'v1'], function ()
 {
+
+    /*
+    |-----------------------------------------------------------------------
+    | Public routes
+    |-----------------------------------------------------------------------
+    */
+
     Route::get('/login', 'V1\AuthController@login');
     Route::get('/register', 'V1\AuthController@register');
 
@@ -27,7 +30,15 @@ Route::group(['prefix' => 'v1'], function ()
         'middleware' => ["auth:api"]
     ], function ()
     {
+
+        /*
+        |-----------------------------------------------------------------------
+        | Andmin and Customer routes
+        |-----------------------------------------------------------------------
+        */
+
         Route::group(['middleware' => ['role_check:'.UserRole::Admin.','.UserRole::Customer]], function() {
+
             Route::group(['prefix' => 'cart'], function () {
                 Route::post('item/{item}', 'V1\CartController@addItemToCart');
                 Route::delete('item/{item}', 'V1\CartController@deleteItemFromCart');
@@ -38,7 +49,26 @@ Route::group(['prefix' => 'v1'], function ()
                 Route::get('info', 'V1\UserController@info');
                 Route::get('orders', 'V1\UserController@getOrders');
             });
+
         });
+
+        /*
+        |-----------------------------------------------------------------------
+        | Andmin and StoreUser routes
+        |-----------------------------------------------------------------------
+        */
+
+        Route::group(['middleware' => ['role_check:'.UserRole::Admin.','.UserRole::StoreUser]], function() {
+
+            Route::group(['prefix' => 'store'], function () {
+                Route::post('{store}/items', 'V1\StoreController@addItemToStore');
+                Route::patch('{store}/items/{item}', 'V1\StoreController@updateStoreItem');
+                Route::delete('{store}/items/{item}', 'V1\StoreController@deleteStoreItem');
+            });
+
+        });
+
+
     });
 
 });
