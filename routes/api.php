@@ -69,6 +69,19 @@ Route::group(['prefix' => 'v1'], function ()
 
         });
 
+        /*
+        |-----------------------------------------------------------------------
+        | Andmin routes
+        |-----------------------------------------------------------------------
+        */
+
+        Route::group(['middleware' => ['role_check:'.UserRole::Admin]], function() {
+
+            Route::group(['prefix' => 'store'], function () {
+                Route::post('{store}/users', 'V1\StoreController@addStoreUser');
+                Route::delete('{store}/users/{user}', 'V1\StoreController@deleteStoreUser');
+            });
+        });
 
     });
 
