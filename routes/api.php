@@ -23,8 +23,8 @@ Route::group(['prefix' => 'v1'], function ()
     |-----------------------------------------------------------------------
     */
 
-    Route::get('/login', 'V1\AuthController@login');
-    Route::get('/register', 'V1\AuthController@register');
+    Route::get('/login', 'V1\Auth\AuthController@login');
+    Route::get('/register', 'V1\Auth\AuthController@register');
 
     Route::group([
         'middleware' => ["auth:api"]
@@ -40,14 +40,14 @@ Route::group(['prefix' => 'v1'], function ()
         Route::group(['middleware' => ['role_check:'.UserRole::Admin.','.UserRole::Customer]], function() {
 
             Route::group(['prefix' => 'cart'], function () {
-                Route::post('item/{item}', 'V1\CartController@addItemToCart');
-                Route::delete('item/{item}', 'V1\CartController@deleteItemFromCart');
-                Route::post('checkout', 'V1\CartController@checkout');
+                Route::post('item/{item}', 'V1\Cart\CartController@addItemToCart');
+                Route::delete('item/{item}', 'V1\Cart\CartController@deleteItemFromCart');
+                Route::post('checkout', 'V1\Cart\CartController@checkout');
             });
 
             Route::group(['prefix' => 'me'], function () {
-                Route::get('info', 'V1\UserController@info');
-                Route::get('orders', 'V1\UserController@getOrders');
+                Route::get('info', 'V1\Me\UserController@info');
+                Route::get('orders', 'V1\Me\UserController@getOrders');
             });
 
         });
@@ -61,10 +61,10 @@ Route::group(['prefix' => 'v1'], function ()
         Route::group(['middleware' => ['role_check:'.UserRole::Admin.','.UserRole::StoreUser]], function() {
 
             Route::group(['prefix' => 'store'], function () {
-                Route::post('{store}/items', 'V1\StoreController@addItemToStore');
-                Route::patch('{store}/items/{item}', 'V1\StoreController@updateStoreItem');
-                Route::delete('{store}/items/{item}', 'V1\StoreController@deleteStoreItem');
-                Route::get('{store}/orders', 'V1\StoreController@getStoreOrders');
+                Route::post('{store}/items', 'V1\Store\StoreItemsController@addItemToStore');
+                Route::patch('{store}/items/{item}', 'V1\Store\StoreItemsController@updateStoreItem');
+                Route::delete('{store}/items/{item}', 'V1\Store\StoreItemsController@deleteStoreItem');
+                Route::get('{store}/orders', 'V1\Store\StoreOrdersController@getStoreOrders');
             });
 
         });
@@ -78,7 +78,7 @@ Route::group(['prefix' => 'v1'], function ()
         Route::group(['middleware' => ['role_check:'.UserRole::Admin.','.UserRole::Customer.','.UserRole::StoreUser]], function() {
 
             Route::group(['prefix' => 'store'], function () {
-                Route::patch('{store}/order/{order}', 'V1\StoreController@updateStoreOrder');
+                Route::patch('{store}/order/{order}', 'V1\Store\StoreOrdersController@updateStoreOrder');
             });
         });
 
@@ -91,8 +91,8 @@ Route::group(['prefix' => 'v1'], function ()
         Route::group(['middleware' => ['role_check:'.UserRole::Admin]], function() {
 
             Route::group(['prefix' => 'store'], function () {
-                Route::post('{store}/users', 'V1\StoreController@addStoreUser');
-                Route::delete('{store}/users/{user}', 'V1\StoreController@deleteStoreUser');
+                Route::post('{store}/users', 'V1\Store\StoreUsersController@addStoreUser');
+                Route::delete('{store}/users/{user}', 'V1\Store\StoreUsersController@deleteStoreUser');
             });
         });
 

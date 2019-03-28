@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Http\Controllers\V1;
+namespace Tests\Unit\Http\Controllers\V1\Me;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -9,9 +9,12 @@ use App\Http\Transformers\V1\UserTransformer;
 use App\Models\User;
 use App\Support\Enums\OrderStatus;
 use App\Models\Order;
+use App\Models\Store;
 
 class UserControllerTest extends TestCase
 {
+    use RefreshDatabase;
+    
     /**
      * 6. GET /api/v1/me/info
      *
@@ -45,7 +48,7 @@ class UserControllerTest extends TestCase
         $statusFailFilter = OrderStatus::Placed;
         $numberOfPassedOrders = 3;
         $numberOfNotPassedOrders = 4;
-
+        $store = factory(Store::class)->create();
         $user = factory(User::class)->create([
             'api_token' => str_random(30), 
         ]);

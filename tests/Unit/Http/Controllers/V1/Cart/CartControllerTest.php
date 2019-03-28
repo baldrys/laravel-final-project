@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Http\Controllers\V1;
+namespace Tests\Unit\Http\Controllers\V1\Cart;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;

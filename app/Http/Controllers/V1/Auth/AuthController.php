@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\V1;
+namespace App\Http\Controllers\V1\Auth;
 
-use App\Http\Requests\V1\EmailPasswordRequest;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\EmailPasswordRequest;
 use App\Models\User;
 use Hash;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -39,11 +39,11 @@ class AuthController extends Controller
     public function register(EmailPasswordRequest $request)
     {
         $user = User::where("email", $request->email)->first();
-        if($user) {
+        if ($user) {
             abort(400, "Пользователь c таким email уже зарегистрирован!");
         }
         $user = factory(User::class)->create([
-            "full_name" =>   $request->full_name,
+            "full_name" => $request->full_name,
             "email" => $request->email,
             "password" => Hash::make($request->password),
         ]);
