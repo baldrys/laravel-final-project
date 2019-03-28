@@ -12,7 +12,7 @@ use App\Support\Enums\OrderStatus;
 
 class UserController extends Controller
 {
-    const ORDERS_PER_PAGE = 2;
+    const ORDERS_PER_PAGE = 10;
 
     /**
      * @param Request $request

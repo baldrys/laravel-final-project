@@ -24,7 +24,7 @@ use Illuminate\Http\Request;
 class StoreController extends Controller
 {
 
-    const ORDERS_PER_PAGE = 2;
+    const ORDERS_PER_PAGE = 10;
 
     /**
      * @param Request $request
@@ -86,7 +86,7 @@ class StoreController extends Controller
             return response()->json([
                 "success" => false,
                 "message" => "Item " . $item->id . " нету в store " . $store->id,
-            ], 400);
+            ], 404);
         }
 
         $orders = $item->orders()->where('status', '<>', OrderStatus::Canceled)->get();
@@ -140,7 +140,7 @@ class StoreController extends Controller
             return response()->json([
                 "success" => false,
                 "message" => "Order " . $order->id . " не из store " . $store->id,
-            ], 400);
+            ], 404);
         }
 
         $statuOld = $order->status;
@@ -208,7 +208,7 @@ class StoreController extends Controller
             return response()->json([
                 "success" => false,
                 "message" => "User " . $user->id . " не является сотрудником store " . $store->id,
-            ], 400);
+            ], 404);
         }
 
         $user->delete();

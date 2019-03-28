@@ -71,6 +71,19 @@ Route::group(['prefix' => 'v1'], function ()
 
         /*
         |-----------------------------------------------------------------------
+        | Andmin and StoreUser and Customer routes
+        |-----------------------------------------------------------------------
+        */
+
+        Route::group(['middleware' => ['role_check:'.UserRole::Admin.','.UserRole::Customer.','.UserRole::StoreUser]], function() {
+
+            Route::group(['prefix' => 'store'], function () {
+                Route::patch('{store}/order/{order}', 'V1\StoreController@updateStoreOrder');
+            });
+        });
+
+        /*
+        |-----------------------------------------------------------------------
         | Andmin routes
         |-----------------------------------------------------------------------
         */
