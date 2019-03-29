@@ -44,7 +44,7 @@ class StoreUsersControllerTest extends TestCase
         $this->assertEquals($createdStoreUser->full_name, $name);
         $this->assertEquals($createdStoreUser->role, UserRole::StoreUser);
         $this->assertEquals(StoreUser::where('user_id', $createdStoreUser->id)->first()->store_id, $store->id);
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $response->assertJson(["success" => true]);
     }
 

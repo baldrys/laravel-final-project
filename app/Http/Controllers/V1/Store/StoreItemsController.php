@@ -35,7 +35,7 @@ class StoreItemsController extends Controller
             "data" => [
                 "item" => ItemTransformer::transformItem($item),
             ],
-        ]);
+        ], 201);
     }
 
     /**

@@ -25,12 +25,6 @@ class CartController extends Controller
     {
         $user = auth("api")->user();
 
-        if (!CartItem::isAllItemsInSameStore($user)) {
-            return response()->json([
-                "success" => false,
-                "message" => "В корзине items из разных магазинов!",
-            ], 500);
-        }
         if (!CartItem::isAllowedToAdd($item, $user)) {
             return response()->json([
                 "success" => false,

@@ -38,7 +38,7 @@ class StoreUsersController extends Controller
             "data" => [
                 "created_store_user" => UserTransformer::transformItem($user),
             ],
-        ]);
+        ], 201);
     }
 
     /**

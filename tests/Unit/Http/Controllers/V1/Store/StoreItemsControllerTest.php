@@ -46,7 +46,7 @@ class StoreItemsControllerTest extends TestCase
             'ingredients' => self::INGREDIENTS,
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $response->assertJson(["success" => true]);
 
         $itemFromDB = Item::where('store_id', $store->id)->first();
