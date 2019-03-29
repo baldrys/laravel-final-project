@@ -119,7 +119,6 @@ class StoreOrdersControllerTest extends TestCase
         ]);
 
         $response->assertStatus(403);
-        $response->assertJson(["success" => false]);
     }
 
     /**
@@ -150,7 +149,6 @@ class StoreOrdersControllerTest extends TestCase
         ]);
 
         $response->assertStatus(404);
-        $response->assertJson(["success" => false]);
     }
 
 }

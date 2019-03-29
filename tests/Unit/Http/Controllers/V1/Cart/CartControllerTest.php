@@ -64,7 +64,6 @@ class CartControllerTest extends TestCase
             'amount' => $amount,
         ]);
         $response->assertStatus(400);
-        $response->assertJson(["success" => false]);
     }
 
     /**
@@ -106,7 +105,6 @@ class CartControllerTest extends TestCase
             'api_token' => $user->api_token,
         ]);
         $response->assertStatus(404);
-        $response->assertJson(["success" => false]);
     }
 
     /**
@@ -124,7 +122,6 @@ class CartControllerTest extends TestCase
             'api_token' => $user->api_token,
         ]);
         $response->assertStatus(400);
-        $response->assertJson(["success" => false]);
     }
 
     /**

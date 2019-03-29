@@ -14,6 +14,10 @@ class StoreUsersControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    const EMAIL = 'someemail@email.com';
+    const PASSWORD = 'qwerty123';
+    const PASSWORD_FAIL = 'qwerty1234';
+
     /**
      * 13. POST /api/v1/store/{store}/users
      *
@@ -22,9 +26,6 @@ class StoreUsersControllerTest extends TestCase
      */
     public function AddStoreUser_DataCorrect_Success()
     {
-        $name = 'Name';
-        $email = 'qwerty@gmail.com';
-        $password = 'secret';
         $store = factory(Store::class)->create();
         $admin = factory(User::class)->create([
             'api_token' => str_random(30),
@@ -33,19 +34,43 @@ class StoreUsersControllerTest extends TestCase
 
         $response = $this->json('POST', 'api/v1/store/' . $store->id . '/users', [
             'api_token' => $admin->api_token,
-            "full_name" => $name,
-            "email" => $email,
-            "password" => $password,
+            'email' => self::EMAIL,
+            'password' => self::PASSWORD,
         ]);
 
-        $createdStoreUser = User::where('email', $email)->first();
-        $this->assertEquals($createdStoreUser->email, $email);
-        $this->assertTrue(Hash::check($password, $createdStoreUser->password));
-        $this->assertEquals($createdStoreUser->full_name, $name);
+        $createdStoreUser = User::where('email', self::EMAIL)->first();
+        $this->assertEquals($createdStoreUser->email, self::EMAIL);
+        $this->assertTrue(Hash::check(self::PASSWORD, $createdStoreUser->password));
         $this->assertEquals($createdStoreUser->role, UserRole::StoreUser);
         $this->assertEquals(StoreUser::where('user_id', $createdStoreUser->id)->first()->store_id, $store->id);
         $response->assertStatus(201);
         $response->assertJson(["success" => true]);
+    }
+
+    /**
+     * 13. POST /api/v1/store/{store}/users
+     *
+     * @test
+     * @throws \Exception
+     */
+    public function AddStoreUser_EmailAlreadyExists_Failed()
+    {
+        $store = factory(Store::class)->create();
+        $admin = factory(User::class)->create([
+            'api_token' => str_random(30),
+            'role' => UserRole::Admin,
+        ]);
+        $user = factory(User::class)->create([
+            'email' => self::EMAIL,
+            'password' => Hash::make(self::PASSWORD),
+        ]);
+        $response = $this->json('POST', 'api/v1/store/' . $store->id . '/users', [
+            'api_token' => $admin->api_token,
+            'email' => self::EMAIL,
+            'password' => self::PASSWORD,
+        ]);
+
+        $response->assertStatus(400);
     }
 
     /**
@@ -105,7 +130,6 @@ class StoreUsersControllerTest extends TestCase
         ]);
 
         $response->assertStatus(400);
-        $response->assertJson(["success" => false]);
     }
 
     /**
@@ -131,6 +155,5 @@ class StoreUsersControllerTest extends TestCase
         ]);
 
         $response->assertStatus(404);
-        $response->assertJson(["success" => false]);
     }
 }

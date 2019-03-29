@@ -78,10 +78,7 @@ class StoreItemsController extends Controller
     public function deleteStoreItem(Store $store, Item $item, Request $request)
     {
         if ($item->store_id != $store->id) {
-            return response()->json([
-                "success" => false,
-                "message" => "Item " . $item->id . " нету в store " . $store->id,
-            ], 404);
+            abort(404, "Item " . $item->id . " нету в store " . $store->id);
         }
 
         $orders = $item->orders()->where('status', '<>', OrderStatus::Canceled)->get();

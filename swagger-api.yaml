@@ -13,16 +13,24 @@ securityDefinitions:
     in: header
     name: ADMIN-API-KEY
 info:
-  description: "Users API"
+  description: "Store API"
   version: "1.0.0"
-  title: "Users API"
+  title: "Final project API"
 host: "localhost"
 basePath: "/api/v1"
 tags:
 - name: "User authorization"
   description: "Operations about athorization user"
 - name: "Cart operations"
-  description: "Operations about cart"  
+  description: "Operations about cart"
+- name: "User's information"
+  description: "Giving information about user"
+- name: "Store items operation"
+  description: "Operation on items in store "
+- name: "Store orders operation"
+  description: "Operation on orders in store"
+- name: "Store users operation"
+  description: "Operation on user in store"    
 schemes:
 - "https"
 - "http"
@@ -85,6 +93,11 @@ paths:
         type: "string"
         description: "Password of the user"
         required: true
+      - in: "query"
+        name: "name"
+        type: "string"
+        description: "User's name"
+        required: false  
       responses:
         200:
           description: "success"
@@ -135,8 +148,6 @@ paths:
                 type: boolean
         400:
           description: "Item из другого магазина!"
-        500:
-          description: "В корзине items из разных магазинов!"
     delete:
       security:
       - AdminSecurity: []
@@ -263,7 +274,342 @@ paths:
                 type: object
                 properties:
                   orders:
-                    $ref: "#/definitions/OrderArray"                  
+                    $ref: "#/definitions/ArrayOfOrders"
+  /store/{store}/items:
+    post:
+      security:
+      - AdminSecurity: []
+      - StoreUserSecurity: []
+      tags:
+      - "Store items operation"
+      summary: "Added item to store"
+      description: "Recuired roles: store user or admin"
+      operationId: "addItemToStore"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "store"
+        type: "integer"
+        format: "int64"
+        description: "store id"
+        required: true
+      - in: "query"
+        name: "name"
+        type: "string"
+        description: "Item name"
+        required: true
+      - in: "query"
+        name: "ingredients"
+        type: array
+        description: "Array of ingredients"
+        items:
+          type: string
+      responses:
+        201:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  item:
+                    $ref: "#/definitions/Item"
+  /store/{store}/items/{item}:
+    patch:
+      security:
+      - AdminSecurity: []
+      - StoreUserSecurity: []
+      tags:
+      - "Store items operation"
+      summary: "Update item in store"
+      description: "Recuired roles: store user or admin"
+      operationId: "updateStoreItem"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "store"
+        type: "integer"
+        format: "int64"
+        description: "store id"
+        required: true
+      - in: "path"
+        name: "item"
+        type: "integer"
+        format: "int64"
+        description: "item id"
+        required: true
+      - in: "query"
+        name: "name"
+        type: "string"
+        description: "Item name"
+      - in: "query"
+        name: "ingredients"
+        type: array
+        description: "Array of ingredients"
+        items:
+          type: string
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  item:
+                    $ref: "#/definitions/Item"
+    delete:
+      security:
+      - AdminSecurity: []
+      - StoreUserSecurity: []
+      tags:
+      - "Store items operation"
+      summary: "Delete item in store"
+      description: "Recuired roles: store user or admin"
+      operationId: "deleteStoreItem"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "store"
+        type: "integer"
+        format: "int64"
+        description: "store id"
+        required: true
+      - in: "path"
+        name: "item"
+        type: "integer"
+        format: "int64"
+        description: "item id"
+        required: true
+      - in: "query"
+        name: "name"
+        type: "string"
+        description: "Item name"
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  deleted_item:
+                    $ref: "#/definitions/Item"
+        400:
+          description: "Cant delete"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: "Невозможно удалить items. Используется в следующих заказах"
+              orders:  
+                type: object
+                properties:
+                  orders:
+                    $ref: "#/definitions/ArrayOfOrders"
+        404:
+          description: "Item нету в store"
+  /store/{store}/orders:
+    get:
+      security:
+      - AdminSecurity: []
+      - StoreUserSecurity: []
+      tags:
+      - "Store orders operation"
+      summary: "Get store's orders"
+      description: "Recuired roles: store user or admin"
+      operationId: "getStoreOrders"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "store"
+        type: "integer"
+        format: "int64"
+        description: "store id"
+        required: true
+      - in: "query"
+        name: "page"
+        type: "integer"
+        description: "Page"
+        required: false
+        default: 1
+      - in: "query"
+        name: "status"
+        type: "string"
+        description: "Order's status: [Canceled, Placed (default), Approved, Shipped, Received]"
+        required: true
+      - in: "query"
+        name: "min_total_price"
+        type: "integer"
+        description: ""
+        required: true
+      - in: "query"
+        name: "max_total_amount "
+        type: "integer"
+        description: ""
+        required: true
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  orders:
+                    $ref: "#/definitions/ArrayOfOrders"
+  /store/{store}/order/{order}:
+    patch:
+      security:
+      - AdminSecurity: []
+      - StoreUserSecurity: []
+      - CustomerSecurity: []
+      tags:
+      - "Store orders operation"
+      summary: "Change order status"
+      description: "Recuired roles: store user, customer or admin"
+      operationId: "updateOrderStatus"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "store"
+        type: "integer"
+        format: "int64"
+        description: "store id"
+        required: true
+      - in: "path"
+        name: "order"
+        type: "integer"
+        format: "int64"
+        description: "order id"
+        required: true  
+      - in: "query"
+        name: "status"
+        type: "string"
+        description: "Order's status: [Canceled, Placed (default), Approved, Shipped, Received]"
+        required: true
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  updated_order:
+                    $ref: "#/definitions/Order"
+        404:
+          description: "Order not in store"
+        403:
+          description: "Forbidden"
+  /store/{store}/users:
+    post:
+      security:
+      - AdminSecurity: []
+      tags:
+      - "Store users operation"
+      summary: "Adding store user"
+      description: "Recuired roles: admin"
+      operationId: "addStoreUser"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "store"
+        type: "integer"
+        format: "int64"
+        description: "store id"
+        required: true
+      - in: "query"
+        name: "email"
+        type: "string"
+        description: "Email of the user"
+        required: true
+      - in: "query"
+        name: "password"
+        type: "string"
+        description: "Password of the user"
+        required: true
+      - in: "query"
+        name: "name"
+        type: "string"
+        description: "User's name"
+        required: false  
+      responses:
+        201:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  created_user:
+                    $ref: "#/definitions/User"
+        400:
+          description: "Пользователь c таким email уже зарегистрирован!"
+  /api/v1/store/{store}/users/{user}:
+    delete:
+      security:
+      - AdminSecurity: []
+      tags:
+      - "Store users operation"
+      summary: "Deleting store user"
+      description: "Recuired roles: admin"
+      operationId: "deleteStoreUser"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "store"
+        type: "integer"
+        format: "int64"
+        description: "store id"
+        required: true
+      - in: "path"
+        name: "user"
+        type: "integer"
+        format: "int64"
+        description: "store id"
+        required: true  
+      responses:
+        200:
+          description: "success"
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+        400:
+          description: "User не является userStore"
+        404:
+          description: "User не является сотрудником store"
 definitions:
   User:
     type: "object"
@@ -293,7 +639,7 @@ definitions:
         type: "integer"
         format: "int64"
         example: 2
-      total_amount:
+      total_price:
         type: "number"
         example: 120.00
       items:
@@ -312,26 +658,48 @@ definitions:
               amount: 13
             - item_id: 2
               amount: 10
-  OrderArray:
+  Item:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 23
+      store_id:
+        type: "integer"
+        format: "int64"
+        example: 33  
+      name:
+        type: "string"
+        example: "Ingredient name"
+      ingredients:
+        type: "array"
+        items:
+          $ref: "#/definitions/Ingredient"
+  Ingredient:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        example: 23
+      store_id:
+        type: "integer"
+        format: "int64"
+        example: 33  
+      name:
+        type: "string"
+        example: "Ingredient name"
+      price:
+        type: "number"
+        example: "4.20"
+      amount:
+        type: "integer"
+        example: "1"
+  ArrayOfOrders:
     type: array
     items:
       $ref: "#/definitions/Order"
-  ArrayOfUsers:
-    type: array
-    items:
-      type: object
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        name:
-          type: "string"
-        email:
-          type: "string"
-        role:
-          type: "string"
-        banned:
-          type: "boolean"
     example:
       - id: 1
         name: "Ivanov Ivan"

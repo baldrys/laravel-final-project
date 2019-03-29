@@ -49,10 +49,8 @@ class StoreOrdersController extends Controller
     {
 
         if ($order->store_id != $store->id) {
-            return response()->json([
-                "success" => false,
-                "message" => "Order " . $order->id . " не из store " . $store->id,
-            ], 404);
+            abort(404, "Order " . $order->id . " не из store " . $store->id);
+
         }
 
         $statuOld = $order->status;
@@ -61,10 +59,7 @@ class StoreOrdersController extends Controller
         $isAllowed = $user->isAllowedOrderStatusChange($statuOld, $statusNew);
 
         if (!$isAllowed) {
-            return response()->json([
-                "success" => false,
-                "message" => "Нет доступа для групппы: " . $user->role,
-            ], 403);
+            abort(403, "Нет доступа для групппы: " . $user->role);
         }
 
         $order->status = $request->status;

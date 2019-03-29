@@ -144,7 +144,6 @@ class StoreItemsControllerTest extends TestCase
         ]);
 
         $response->assertStatus(400);
-        $response->assertJson(["success" => false]);
     }
 
     /**
@@ -175,7 +174,6 @@ class StoreItemsControllerTest extends TestCase
         ]);
 
         $response->assertStatus(404);
-        $response->assertJson(["success" => false]);
     }
 
     /**

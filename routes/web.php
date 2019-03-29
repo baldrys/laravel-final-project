@@ -11,5 +11,9 @@
 |
 */
 
+Route::get('/', function () {
+    return view('welcome');
+});
+
 Route::get('login/github', 'V1\Auth\GitHubAuthController@redirectToProvider');
 Route::get('login/github/callback', 'V1\Auth\GitHubAuthController@handleProviderCallback');

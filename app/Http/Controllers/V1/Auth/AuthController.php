@@ -38,8 +38,7 @@ class AuthController extends Controller
      */
     public function register(EmailPasswordRequest $request)
     {
-        $user = User::where("email", $request->email)->first();
-        if ($user) {
+        if (User::where("email", $request->email)->exists()) {
             abort(400, "Пользователь c таким email уже зарегистрирован!");
         }
         $user = factory(User::class)->create([

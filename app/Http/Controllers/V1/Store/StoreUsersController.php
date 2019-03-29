@@ -22,7 +22,9 @@ class StoreUsersController extends Controller
      */
     public function addStoreUser(Store $store, EmailPasswordRequest $request)
     {
-
+        if (User::where("email", $request->email)->exists()) {
+            abort(400, "Пользователь c таким email уже зарегистрирован!");
+        }
         $user = factory(User::class)->create([
             "full_name" => $request->full_name,
             "email" => $request->email,
@@ -51,18 +53,12 @@ class StoreUsersController extends Controller
     public function deleteStoreUser(Store $store, User $user, Request $request)
     {
         if ($user->role != UserRole::StoreUser) {
-            return response()->json([
-                "success" => false,
-                "message" => "User " . $user->id . " не является userStore",
-            ], 400);
+            abort(400, "User " . $user->id . " не является userStore");
         }
 
         $storeUser = StoreUser::where('user_id', $user->id)->where('store_id', $store->id);
         if (!$storeUser->exists()) {
-            return response()->json([
-                "success" => false,
-                "message" => "User " . $user->id . " не является сотрудником store " . $store->id,
-            ], 404);
+            abort(404, "User " . $user->id . " не является сотрудником store " . $store->id);
         }
 
         $user->delete();

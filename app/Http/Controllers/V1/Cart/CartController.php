@@ -26,10 +26,7 @@ class CartController extends Controller
         $user = auth("api")->user();
 
         if (!CartItem::isAllowedToAdd($item, $user)) {
-            return response()->json([
-                "success" => false,
-                "message" => "Item из другого магазина!",
-            ], 400);
+            abort(400, "Item из другого магазина!");
         }
         CartItem::create([
             'user_id' => $user->id,
@@ -53,10 +50,7 @@ class CartController extends Controller
         $cartItem = CartItem::where('user_id', $user->id)
             ->where('item_id', $item->id);
         if (!$cartItem->exists()) {
-            return response()->json([
-                "success" => false,
-                "message" => "Item'а нету в корзине!",
-            ], 404);
+            abort(404, "Item'а нету в корзине!");
         }
         $cartItem->delete();
         return response()->json([
@@ -73,10 +67,7 @@ class CartController extends Controller
         $user = auth("api")->user();
         $userCartItems = CartItem::where('user_id', $user->id)->get();
         if ($userCartItems->isEmpty()) {
-            return response()->json([
-                "success" => false,
-                "message" => "Корзина пуста!",
-            ], 400);
+            abort(400, "Корзина пуста!");
         }
 
         $order = Order::create([
