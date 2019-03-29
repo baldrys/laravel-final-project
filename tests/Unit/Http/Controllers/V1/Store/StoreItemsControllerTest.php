@@ -19,6 +19,13 @@ class StoreItemsControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    const INGREDIENTS = [
+        0 => ['name' => 'name', 'price' => 11, 'amount' => 1],
+        1 => ['name' => 'name', 'price' => 11, 'amount' => 1],
+    ];
+
+    const ITEM_NAME = 'itemName';
+
     /**
      * 8. POST /api/v1/store/{store}/items
      *
@@ -27,11 +34,6 @@ class StoreItemsControllerTest extends TestCase
      */
     public function AddItemToStore_DataCorrect_Success()
     {
-        $itemName = 'ItemName';
-        $ingredients = [
-            0 => ['name' => 'name', 'price' => 11, 'amount' => 1],
-            1 => ['name' => 'name', 'price' => 11, 'amount' => 1],
-        ];
         $store = factory(Store::class)->create();
         $user = factory(User::class)->create([
             'api_token' => str_random(30),
@@ -40,16 +42,16 @@ class StoreItemsControllerTest extends TestCase
 
         $response = $this->json('POST', 'api/v1/store/' . $store->id . '/items', [
             'api_token' => $user->api_token,
-            'name' => $itemName,
-            'ingredients' => $ingredients,
+            'name' => self::ITEM_NAME,
+            'ingredients' => self::INGREDIENTS,
         ]);
 
         $response->assertStatus(200);
         $response->assertJson(["success" => true]);
 
         $itemFromDB = Item::where('store_id', $store->id)->first();
-        $this->assertEquals($itemFromDB->name, $itemName);
-        $this->assertEquals($itemFromDB->ingredients()->get()->count(), count($ingredients));
+        $this->assertEquals($itemFromDB->name, self::ITEM_NAME);
+        $this->assertEquals($itemFromDB->ingredients()->get()->count(), count(self::INGREDIENTS));
     }
 
     /**
@@ -60,11 +62,6 @@ class StoreItemsControllerTest extends TestCase
      */
     public function UpdateStoreItem_IngredientsPassed_Success()
     {
-        $itemName = 'ItemName';
-        $ingredients = [
-            0 => ['name' => 'name', 'price' => 11, 'amount' => 1],
-            1 => ['name' => 'name', 'price' => 11, 'amount' => 1],
-        ];
         $store = factory(Store::class)->create();
         $user = factory(User::class)->create([
             'api_token' => str_random(30),
@@ -74,8 +71,8 @@ class StoreItemsControllerTest extends TestCase
         $item = factory(Item::class)->create();
         $response = $this->json('PATCH', 'api/v1/store/' . $store->id . '/items/' . $item->id, [
             'api_token' => $user->api_token,
-            'name' => $itemName,
-            'ingredients' => $ingredients,
+            'name' => self::ITEM_NAME,
+            'ingredients' => self::INGREDIENTS,
         ]);
 
         $response->assertStatus(200);
@@ -83,8 +80,8 @@ class StoreItemsControllerTest extends TestCase
 
         $itemFromDB = Item::where('store_id', $store->id)->first();
         $this->assertEquals($itemFromDB->store_id, $store->id);
-        $this->assertEquals($itemFromDB->name, $itemName);
-        $this->assertEquals($itemFromDB->ingredients()->get()->count(), count($ingredients));
+        $this->assertEquals($itemFromDB->name, self::ITEM_NAME);
+        $this->assertEquals($itemFromDB->ingredients()->get()->count(), count(self::INGREDIENTS));
     }
 
     /**
@@ -95,7 +92,6 @@ class StoreItemsControllerTest extends TestCase
      */
     public function UpdateStoreItem_NoIngredientsPassed_Success()
     {
-        $itemName = 'ItemName';
         $numberOfIngredients = 3;
         $store = factory(Store::class)->create();
         $user = factory(User::class)->create([
@@ -110,7 +106,7 @@ class StoreItemsControllerTest extends TestCase
         ]);
         $response = $this->json('PATCH', 'api/v1/store/' . $store->id . '/items/' . $item->id, [
             'api_token' => $user->api_token,
-            'name' => $itemName,
+            'name' => self::ITEM_NAME,
         ]);
 
         $response->assertStatus(200);
@@ -118,7 +114,7 @@ class StoreItemsControllerTest extends TestCase
 
         $itemFromDB = Item::where('store_id', $store->id)->first();
         $this->assertEquals($itemFromDB->store_id, $store->id);
-        $this->assertEquals($itemFromDB->name, $itemName);
+        $this->assertEquals($itemFromDB->name, self::ITEM_NAME);
         $this->assertEquals($itemFromDB->ingredients()->get()->count(), $numberOfIngredients);
     }
 
