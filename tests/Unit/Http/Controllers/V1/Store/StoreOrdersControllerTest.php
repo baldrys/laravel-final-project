@@ -15,6 +15,31 @@ class StoreOrdersControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    const ORDER_STATUS_OLD = OrderStatus::Placed;
+    const ORDER_STATUS_NEW = OrderStatus::Canceled;
+
+    const ORDER_STATUS_NEW_NOT_ALLOWED = OrderStatus::Shipped;
+    const USER_ROLE = UserRole::StoreUser;
+
+    protected $user;
+    protected $store;
+    protected $item;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->store = factory(Store::class)->create();
+        $this->user = factory(User::class)->create([
+            'api_token' => str_random(30),
+            'role' => self::USER_ROLE,
+        ]);
+
+        $this->order = factory(Order::class)->create([
+            'status' => self::ORDER_STATUS_OLD,
+            'store_id' => $this->store->id,
+        ]);
+    }
+
     /**
      * 11. GET /api/v1/store/{store}/orders
      *
@@ -30,25 +55,21 @@ class StoreOrdersControllerTest extends TestCase
         $numberOfPassedOrders = 4;
         $numberOfNotPassedOrders = 4;
 
-        $store = factory(Store::class)->create();
-        $user = factory(User::class)->create([
-            'api_token' => str_random(30),
-            'role' => UserRole::StoreUser,
-        ]);
+        $storeNew = factory(Store::class)->create();
         factory(Order::class, $numberOfPassedOrders)->create([
-            'store_id' => $store->id,
+            'store_id' => $storeNew->id,
             'status' => $statusForFilter,
             'total_price' => $max_total_price - 1,
         ]);
 
         factory(Order::class, $numberOfNotPassedOrders)->create([
-            'store_id' => $store->id,
+            'store_id' => $storeNew->id,
             'status' => $statusFailFilter,
             'total_price' => $max_total_price + 1,
         ]);
 
-        $response = $this->json('GET', 'api/v1/store/' . $store->id . '/orders', [
-            'api_token' => $user->api_token,
+        $response = $this->json('GET', 'api/v1/store/' . $storeNew->id . '/orders', [
+            'api_token' => $this->user->api_token,
             'status' => $statusForFilter,
             'min_total_price' => $min_total_price,
             'max_total_price' => $max_total_price,
@@ -67,28 +88,14 @@ class StoreOrdersControllerTest extends TestCase
      */
     public function UpdateOrder_DataCorrect_Success()
     {
-        $userRole = UserRole::StoreUser;
-        $orderStatusOld = OrderStatus::Placed;
-        $orderStatusNew = OrderStatus::Canceled;
-
-        $store = factory(Store::class)->create();
-        $user = factory(User::class)->create([
-            'api_token' => str_random(30),
-            'role' => $userRole,
-        ]);
-        $order = factory(Order::class)->create([
-            'status' => $orderStatusOld,
-            'store_id' => $store->id,
+        $response = $this->json('PATCH', 'api/v1/store/' . $this->store->id . '/order/' . $this->order->id, [
+            'api_token' => $this->user->api_token,
+            'status' => self::ORDER_STATUS_NEW,
         ]);
 
-        $response = $this->json('PATCH', 'api/v1/store/' . $store->id . '/order/' . $order->id, [
-            'api_token' => $user->api_token,
-            'status' => $orderStatusNew,
-        ]);
-        
         $response->assertStatus(200);
         $response->assertJson(["success" => true]);
-        $this->assertEquals(Order::find($order->id)->status, $orderStatusNew);
+        $this->assertEquals(Order::find($this->order->id)->status, self::ORDER_STATUS_NEW);
 
     }
 
@@ -100,23 +107,9 @@ class StoreOrdersControllerTest extends TestCase
      */
     public function UpdateOrder_NotAllowedStatus_Fail()
     {
-        $userRole = UserRole::Customer;
-        $orderStatusOld = OrderStatus::Shipped;
-        $orderStatusNew = OrderStatus::Canceled;
-
-        $store = factory(Store::class)->create();
-        $user = factory(User::class)->create([
-            'api_token' => str_random(30),
-            'role' => $userRole,
-        ]);
-        $order = factory(Order::class)->create([
-            'status' => $orderStatusOld,
-            'store_id' => $store->id,
-        ]);
-
-        $response = $this->json('PATCH', 'api/v1/store/' . $store->id . '/order/' . $order->id, [
-            'api_token' => $user->api_token,
-            'status' => $orderStatusNew,
+        $response = $this->json('PATCH', 'api/v1/store/' . $this->store->id . '/order/' . $this->order->id, [
+            'api_token' => $this->user->api_token,
+            'status' => self::ORDER_STATUS_NEW_NOT_ALLOWED,
         ]);
 
         $response->assertStatus(403);
@@ -130,23 +123,14 @@ class StoreOrdersControllerTest extends TestCase
      */
     public function UpdateOrder_OrderNotInStore_NotFound()
     {
-        $store = factory(Store::class)->create();
-        $userRole = UserRole::Customer;
-        $orderStatusOld = OrderStatus::Placed;
-        $orderStatusNew = OrderStatus::Canceled;
-
-        $user = factory(User::class)->create([
-            'api_token' => str_random(30),
-            'role' => $userRole,
-        ]);
         $order = factory(Order::class)->create([
-            'status' => $orderStatusOld,
-            'store_id' => factory(Store::class)->create()
+            'status' => self::ORDER_STATUS_OLD,
+            'store_id' => factory(Store::class)->create(),
         ]);
 
-        $response = $this->json('PATCH', 'api/v1/store/' . $store->id . '/order/' . $order->id, [
-            'api_token' => $user->api_token,
-            'status' => $orderStatusNew,
+        $response = $this->json('PATCH', 'api/v1/store/' . $this->store->id . '/order/' . $order->id, [
+            'api_token' => $this->user->api_token,
+            'status' => self::ORDER_STATUS_NEW,
         ]);
 
         $response->assertStatus(404);
@@ -160,19 +144,17 @@ class StoreOrdersControllerTest extends TestCase
      */
     public function UpdateOrder_CustomerTryChangeOtherOrder_Fail()
     {
-        $orderStatusNew = OrderStatus::Canceled;
-        $store = factory(Store::class)->create();
         $customer = factory(User::class)->create([
             'api_token' => str_random(30),
         ]);
 
         $order = factory(Order::class)->create([
-            'customer_id' => factory(User::class)->create()
+            'customer_id' => factory(User::class)->create(),
         ]);
 
-        $response = $this->json('PATCH', 'api/v1/store/' . $store->id . '/order/' . $order->id, [
+        $response = $this->json('PATCH', 'api/v1/store/' . $this->store->id . '/order/' . $order->id, [
             'api_token' => $customer->api_token,
-            'status' => $orderStatusNew,
+            'status' => self::ORDER_STATUS_NEW,
         ]);
 
         $response->assertStatus(403);
