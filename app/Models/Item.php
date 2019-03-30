@@ -34,18 +34,28 @@ class Item extends Model
         return $this->belongsToMany('App\Models\Order', 'order_items', 'item_id', 'order_id');
     }
 
+    /**
+     * Счиает цену item
+     *
+     * @return float
+     */
     public function getPrice()
     {
-        $itemIngredients = $this->itemIngredients()->get();
-        $sum = 0;
-        foreach ($itemIngredients as $itemIngredient) {
+        $itemPrice = $this->itemIngredients->sum(function($itemIngredient) {
             $ingredientAmount = $itemIngredient->amount;
             $ingredientPrice = $itemIngredient->itemIngredient->price;
-            $sum += $ingredientAmount * $ingredientPrice;
-        }
-        return $sum;
+            return $ingredientAmount * $ingredientPrice;
+        });
+        return $itemPrice;
     }
 
+    /**
+     * Сохраняет переданные ингридиенты для item
+     *
+     * @param  mixed $ingredients
+     *
+     * @return void
+     */
     public function saveIngredients(Array $ingredients) {
 
         foreach ($ingredients as $ingredient) {
@@ -65,6 +75,13 @@ class Item extends Model
         }
     }
 
+    /**
+     * Заменяет ингридиенты у item
+     *
+     * @param  mixed $ingredients
+     *
+     * @return void
+     */
     public function replaceIngredients(Array $ingredients) {
         $this->itemIngredients()->delete();
         $this->saveIngredients($ingredients);

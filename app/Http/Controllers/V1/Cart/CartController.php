@@ -65,7 +65,7 @@ class CartController extends Controller
     public function checkout(Request $request)
     {
         $user = auth("api")->user();
-        $userCartItems = CartItem::where('user_id', $user->id)->get();
+        $userCartItems = $user->cartItems;
         if ($userCartItems->isEmpty()) {
             abort(400, "Корзина пуста!");
         }
@@ -73,11 +73,18 @@ class CartController extends Controller
         $order = Order::create([
             'customer_id' => $user->id,
             'total_price' => CartItem::getCartPriceForUser($user),
-            'store_id' => CartItem::getStoreIdFromUserCart($user),
+            'store_id' => $userCartItems->first()->item->store_id,
         ]);
 
         OrderItem::saveCartItemsOfOrder($order, $userCartItems);
-        CartItem::clearCartForUser($user);
+        $user->cartItems()->delete();
+        
+        return response()->json([
+            "success" => true,
+            "data" => [
+                "order" => OrderTransformer::transformItem($order),
+            ],
+        ]);
 
         return response()->json([
             "success" => true,

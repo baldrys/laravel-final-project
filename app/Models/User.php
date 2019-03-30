@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Support\Enums\OrderStatus;
 use App\Support\Enums\UserRole;
+use App\Model\CartItem;
 
 class User extends Authenticatable
 {
@@ -41,7 +42,7 @@ class User extends Authenticatable
 
     public function cartItems()
     {
-        return $this->belongsToMany('App\Models\Item', 'cart_items', 'user_id', 'item_id');
+        return $this->hasMany('App\Models\CartItem');
     }
 
     /**
@@ -57,9 +58,13 @@ class User extends Authenticatable
         $this->save();
     }
 
-    public function isAllowedOrderStatusChange($statusOld, $statusNew) {
-
-        $allowedChanges = [
+    /**
+     * Возвращает массив который определяет возможные изменения OrderStatus для user
+     *
+     * @return array
+     */
+    public static function getUserPremmisionsTochangeOrderStatus() {
+        return [
             UserRole::StoreUser => [
                 [
                     'statusOld' => OrderStatus::getValues(), 
@@ -85,9 +90,22 @@ class User extends Authenticatable
 
             ],
         ];
+    }
+
+    /**
+     * Возвращает true если user может поменять OrderStatus и наоборот
+     *
+     * @param  OrderStatus $statusOld
+     * @param  OrderStatus $statusNew
+     *
+     * @return boolean
+     */
+    public function isAllowedOrderStatusChange(OrderStatus $statusOld, OrderStatus $statusNew) {
+
+        $allowedChanges = self::getUserPremmisionsTochangeOrderStatus();
 
         foreach ($allowedChanges[$this->role] as $allowedChange) {
-            if((in_array($statusOld, $allowedChange['statusOld'])) && ($allowedChange['statusNew'] == $statusNew)) {
+            if((in_array($statusOld->value, $allowedChange['statusOld'])) && ($allowedChange['statusNew'] == $statusNew->value)) {
                 return true;
             }
         };

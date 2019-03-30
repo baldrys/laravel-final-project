@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\ItemIngredient;
 use App\Models\ItemIngredients;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -136,6 +137,7 @@ class CartControllerTest extends TestCase
         $amountInCartItem = 2;
         $amountOfingredient = 3;
         $numberOfIngredients = 4;
+        $numberOfitems = 1;
 
         $store = factory(Store::class)->create();
         $user = factory(User::class)->create(['api_token' => str_random(30)]);
@@ -158,7 +160,8 @@ class CartControllerTest extends TestCase
         $totalPrice = Order::where('customer_id', $user->id)
             ->first()
             ->total_price;
-
+        $this->assertEquals($user->cartItems->count(), 0);
+        $this->assertEquals(OrderItem::all()->count(), $numberOfitems);
         $actualTotalPrice = $amountInCartItem * $amountOfingredient * $numberOfIngredients * $priceOfIngridient;
         $this->assertEquals($totalPrice, $actualTotalPrice);
         $response->assertStatus(200);

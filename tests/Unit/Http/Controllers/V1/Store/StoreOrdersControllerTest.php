@@ -85,10 +85,11 @@ class StoreOrdersControllerTest extends TestCase
             'api_token' => $user->api_token,
             'status' => $orderStatusNew,
         ]);
-
-        $this->assertEquals(Order::find($order->id)->status, $orderStatusNew);
+        
         $response->assertStatus(200);
         $response->assertJson(["success" => true]);
+        $this->assertEquals(Order::find($order->id)->status, $orderStatusNew);
+
     }
 
     /**
@@ -149,6 +150,32 @@ class StoreOrdersControllerTest extends TestCase
         ]);
 
         $response->assertStatus(404);
+    }
+
+    /**
+     * 12. PATCH /api/v1/store/{store}/order/{order}
+     *
+     * @test
+     * @throws \Exception
+     */
+    public function UpdateOrder_CustomerTryChangeOtherOrder_Fail()
+    {
+        $orderStatusNew = OrderStatus::Canceled;
+        $store = factory(Store::class)->create();
+        $customer = factory(User::class)->create([
+            'api_token' => str_random(30),
+        ]);
+
+        $order = factory(Order::class)->create([
+            'customer_id' => factory(User::class)->create()
+        ]);
+
+        $response = $this->json('PATCH', 'api/v1/store/' . $store->id . '/order/' . $order->id, [
+            'api_token' => $customer->api_token,
+            'status' => $orderStatusNew,
+        ]);
+
+        $response->assertStatus(403);
     }
 
 }

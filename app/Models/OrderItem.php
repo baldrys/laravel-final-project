@@ -20,6 +20,14 @@ class OrderItem extends Model
         'order_id', 'item_id', 'amount',
     ];
 
+    /**
+     * Сохраняет items из cart_items в order_items
+     *
+     * @param  Order $order
+     * @param  Collection $cartItems
+     *
+     * @return void
+     */
     public static function saveCartItemsOfOrder(Order $order, Collection $cartItems) {
         foreach ($cartItems as $cartItem) {
             self::create([

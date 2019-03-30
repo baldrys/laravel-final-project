@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Store;
 use App\Models\User;
 use App\Support\Enums\OrderStatus;
+use App\Support\Enums\UserRole;
 use Illuminate\Http\Request;
 
 class StoreOrdersController extends Controller
@@ -47,19 +48,21 @@ class StoreOrdersController extends Controller
      */
     public function updateStoreOrder(Store $store, Order $order, OrderStatusRequest $request)
     {
-
-        if ($order->store_id != $store->id) {
-            abort(404, "Order " . $order->id . " не из store " . $store->id);
-
-        }
-
+        $user = auth("api")->user();
         $statuOld = $order->status;
         $statusNew = $request->status;
-        $user = auth("api")->user();
-        $isAllowed = $user->isAllowedOrderStatusChange($statuOld, $statusNew);
+        $isAllowed = $user->isAllowedOrderStatusChange(new OrderStatus($statuOld), new OrderStatus($statusNew));
 
         if (!$isAllowed) {
             abort(403, "Нет доступа для групппы: " . $user->role);
+        }
+        
+        if ($order->store_id != $store->id) {
+            abort(404, "Order " . $order->id . " не из store " . $store->id);
+        }
+        
+        if ($user->role == UserRole::Customer && $order->customer_id != $user->id) {
+            abort(403, "Нельзя редактировать чужие orders!");
         }
 
         $order->status = $request->status;
