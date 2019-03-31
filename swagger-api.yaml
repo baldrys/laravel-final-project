@@ -35,7 +35,7 @@ schemes:
 - "https"
 - "http"
 paths:
-  /login:
+  /auth/login:
     get:
       tags:
       - "User authorization"
@@ -73,7 +73,7 @@ paths:
           description: "Неверный логин / пароль"
         404:
           description: "Пользователь не существует"
-  /register:
+  /auth/register:
     get:
       tags:
         - "User authorization"

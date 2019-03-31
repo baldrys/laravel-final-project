@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\V1\Me;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Order;
+use App\Http\Requests\V1\GetOrdersRequest;
 use App\Http\Transformers\V1\OrderTransformer;
 use App\Http\Transformers\V1\UserTransformer;
-use App\Http\Requests\V1\GetOrdersRequest;
-use App\Support\Enums\OrderStatus;
+use App\Models\Order;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -24,7 +23,7 @@ class UserController extends Controller
         return response()->json([
             "success" => true,
             "data" => [
-                "user" => UserTransformer::transformItem($user)
+                "user" => UserTransformer::transformItem($user),
             ],
         ]);
     }

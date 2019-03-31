@@ -42,8 +42,8 @@ class UserControllerTest extends TestCase
      */
     public function GetOrders_DataCorrect_Success()
     {
-        $min_total_price = 10.00;
-        $max_total_price = 20.00;
+        $min_total_price = 10.05;
+        $max_total_price = 20.05;
         $statusForFilter = OrderStatus::Canceled;
         $statusFailFilter = OrderStatus::Placed;
         $numberOfPassedOrders = 3;
@@ -56,13 +56,13 @@ class UserControllerTest extends TestCase
         factory(Order::class, $numberOfPassedOrders)->create([
             'customer_id' => $user->id,
             'status' => $statusForFilter,
-            'total_price' => $max_total_price - 1,
+            'total_price' => $max_total_price - 1.0,
         ]);
 
         factory(Order::class, $numberOfNotPassedOrders)->create([
             'customer_id' => $user->id,
             'status' => $statusFailFilter,
-            'total_price' => $max_total_price + 1,
+            'total_price' => $max_total_price + 1.0,
         ]);
 
         $response = $this->json('GET', 'api/v1/me/orders', [

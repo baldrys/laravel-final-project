@@ -35,7 +35,7 @@ class UserAuthControllerTest extends TestCase
      */
     public function Register_DataCorrect_Success()
     {
-        $response = $this->json('GET', 'api/v1/register', [
+        $response = $this->json('GET', 'api/v1/auth/register', [
             'email' => self::EMAIL_FOR_REGISTRATION,
             'password' => self::PASSWORD_SETUP,
         ]);
@@ -55,7 +55,7 @@ class UserAuthControllerTest extends TestCase
      */
     public function Register_EmailAlreadyExists_Failed()
     {
-        $response = $this->json('GET', 'api/v1/register', [
+        $response = $this->json('GET', 'api/v1/auth/register', [
             'email' => self::EMAIL_SETUP,
             'password' => self::PASSWORD_SETUP,
         ]);
@@ -71,12 +71,7 @@ class UserAuthControllerTest extends TestCase
      */
     public function Login_Datacorrect_Success()
     {
-
-        // $user = factory(User::class)->create([
-        //     'email' => self::EMAIL,
-        //     'password' => Hash::make(self::PASSWORD),
-        // ]);
-        $response = $this->json('GET', 'api/v1/login', [
+        $response = $this->json('GET', 'api/v1/auth/login', [
             'email' => self::EMAIL_SETUP,
             'password' => self::PASSWORD_SETUP,
         ]);
@@ -93,12 +88,7 @@ class UserAuthControllerTest extends TestCase
      */
     public function Login_DataIncorrect_Unauthorized()
     {
-
-        // $user = factory(User::class)->create([
-        //     'email' => self::EMAIL,
-        //     'password' => Hash::make(self::PASSWORD),
-        // ]);
-        $response = $this->json('GET', 'api/v1/login', [
+        $response = $this->json('GET', 'api/v1/auth/login', [
             'email' => self::EMAIL_SETUP,
             'password' => self::PASSWORD_DIFFERENT,
         ]);

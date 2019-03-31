@@ -86,11 +86,5 @@ class CartController extends Controller
             ],
         ]);
 
-        return response()->json([
-            "success" => true,
-            "data" => [
-                "order" => OrderTransformer::transformItem($order),
-            ],
-        ]);
     }
 }

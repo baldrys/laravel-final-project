@@ -33,8 +33,8 @@ class GetOrdersRequest extends FormRequest
                 OrderStatus::Shipped,
                 OrderStatus::Received,
             ])],
-            'min_total_price' => 'required|integer|min:1',
-            'max_total_price' => 'required|integer|min:1',
+            'min_total_price' => 'required|Numeric|min:1',
+            'max_total_price' => 'required|Numeric|min:1',
         ];
     }
 }

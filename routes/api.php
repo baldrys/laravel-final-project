@@ -23,8 +23,10 @@ Route::group(['prefix' => 'v1'], function ()
     |-----------------------------------------------------------------------
     */
 
-    Route::get('/login', 'V1\Auth\AuthController@login');
-    Route::get('/register', 'V1\Auth\AuthController@register');
+    Route::group(['prefix' => 'auth'], function () {
+        Route::get('/login', 'V1\Auth\AuthController@login');
+        Route::get('/register', 'V1\Auth\AuthController@register');
+    });
 
     Route::group([
         'middleware' => ["auth:api"]
@@ -40,8 +42,8 @@ Route::group(['prefix' => 'v1'], function ()
         Route::group(['middleware' => ['role_check:'.UserRole::Admin.','.UserRole::Customer]], function() {
 
             Route::group(['prefix' => 'cart'], function () {
-                Route::post('item/{item}', 'V1\Cart\CartController@addItemToCart');
-                Route::delete('item/{item}', 'V1\Cart\CartController@deleteItemFromCart');
+                Route::post('items/{item}', 'V1\Cart\CartController@addItemToCart');
+                Route::delete('items/{item}', 'V1\Cart\CartController@deleteItemFromCart');
                 Route::post('checkout', 'V1\Cart\CartController@checkout');
             });
 

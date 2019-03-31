@@ -56,11 +56,11 @@ class StoreOrdersController extends Controller
         if (!$isAllowed) {
             abort(403, "Нет доступа для групппы: " . $user->role);
         }
-        
+
         if ($order->store_id != $store->id) {
             abort(404, "Order " . $order->id . " не из store " . $store->id);
         }
-        
+
         if ($user->role == UserRole::Customer && $order->customer_id != $user->id) {
             abort(403, "Нельзя редактировать чужие orders!");
         }

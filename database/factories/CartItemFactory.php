@@ -20,7 +20,6 @@ use App\Support\Enums\UserRole;
 */
 
 $factory->define(CartItem::class, function (Faker $faker) {
-    // Куда вынести константы?
     $minAmountInCart = 1;
     $maxAmountInCart = 15;
     return [

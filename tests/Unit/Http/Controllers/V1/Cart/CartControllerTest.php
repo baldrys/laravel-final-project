@@ -39,7 +39,7 @@ class CartControllerTest extends TestCase
      */
     public function AddItemToCart_DataCorrect_Success()
     {
-        $response = $this->json('POST', 'api/v1/cart/item/' . $this->item->id, [
+        $response = $this->json('POST', 'api/v1/cart/items/' . $this->item->id, [
             'api_token' => $this->user->api_token,
             'amount' => self::ITEM_AMOUNT,
         ]);
@@ -64,7 +64,7 @@ class CartControllerTest extends TestCase
             'amount' => self::ITEM_AMOUNT,
         ]);
         $itemNew = factory(Item::class)->create(['store_id' => factory(Store::class)->create()->id]);
-        $response = $this->json('POST', 'api/v1/cart/item/' . $itemNew->id, [
+        $response = $this->json('POST', 'api/v1/cart/items/' . $itemNew->id, [
             'api_token' => $this->user->api_token,
             'amount' => self::ITEM_AMOUNT,
         ]);
@@ -84,7 +84,7 @@ class CartControllerTest extends TestCase
             'item_id' => $this->item->id,
             'amount' => self::ITEM_AMOUNT,
         ]);
-        $response = $this->json('DELETE', 'api/v1/cart/item/' . $this->item->id, [
+        $response = $this->json('DELETE', 'api/v1/cart/items/' . $this->item->id, [
             'api_token' => $this->user->api_token,
         ]);
         $response->assertStatus(200);
@@ -99,7 +99,7 @@ class CartControllerTest extends TestCase
      */
     public function DeleteItemFromCart_ItemNotInCart_NotFound()
     {
-        $response = $this->json('DELETE', 'api/v1/cart/item/' . $this->item->id, [
+        $response = $this->json('DELETE', 'api/v1/cart/items/' . $this->item->id, [
             'api_token' => $this->user->api_token,
         ]);
         $response->assertStatus(404);
